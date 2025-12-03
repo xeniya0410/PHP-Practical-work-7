@@ -1,37 +1,34 @@
 <?php
 require_once 'db.php';
 
-$message = ''; // Сообщение для пользователя
+$message = ''; // переменная для сообщений  для пользователя
 
-// 1. Проверяем, была ли отправлена форма методом POST
+// проверяем, была ли отправлена форма методом POST (если нет, код не выполняется)
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // 2. Получаем данные из $_POST
-    $name = trim($_POST['name'] ?? '');
-    $group = trim($_POST['group_name'] ?? '');
-    $rating = $_POST['rating'] ?? null; // Null, если не задан
+    // получаем данные из $_POST
+    $name = trim($_POST['name'] ?? ''); //если поле есть - взять, если нет - пустая строка
+    $group = trim($_POST['group_name'] ?? ''); //trim - убирает лишние пробелы по краям
+    $rating = $_POST['rating'] ?? null; // null, если не задан
 
-    // Простая валидация
+    //проверка, что обязательные поля не пустые (если поля пустые - показываем сообщение и не продолжаем вставку)
     if (empty($name) || empty($group)) {
         $message = '<p style="color: red;">Ошибка: Поля "Имя" и "Группа" обязательны!</p>';
     } else {
         try {
-            // 3. Используем подготовленное выражение для вставки данных (защита от SQL-инъекций!)
-            $sql = "INSERT INTO students (name, group_name, rating) VALUES (:name, :group, :rating)";
+            // используем подготовленное выражение для вставки данных (защита от SQL-инъекций)
+            $sql = "INSERT INTO students (name, group_name, rating) VALUES (:name, :group, :rating)"; //:name, :group, :rating - параметры, а не прямые переменные
             $stmt = $pdo->prepare($sql);
 
-            // Выполняем запрос, передавая данные массивом
+            // выполняем запрос, передавая данные массивом
             $stmt->execute([
                 'name' => $name,
                 'group' => $group,
-                'rating' => (float) $rating // Приводим к типу float/real
+                'rating' => (float) $rating // приводим к типу float
             ]);
 
-            // 4. Успешное добавление
-            $message = '<p style="color: green;">Студент добавлен!</p>';
-
-            // Очищаем форму после успешного добавления (можно перенаправить, но пока выведем сообщение)
-            // header('Location: index.php'); // Можно использовать для редиректа
-            // exit();
+            // перенаправление после успешного добавления
+            header('Location: index.php'); 
+            exit();
 
         } catch (\PDOException $e) {
             $message = '<p style="color: red;">Ошибка при добавлении: ' . $e->getMessage() . '</p>';
@@ -94,5 +91,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <button type="submit">Добавить</button>
     </form>
 </body>
+
 
 </html>
