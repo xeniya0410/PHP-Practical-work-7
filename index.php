@@ -1,8 +1,8 @@
 <?php
 // Подключаем соединение с БД
-require_once 'db.php';
+require_once 'db.php'; //require_once гарантирует, что файл подключится только раз и если файла нет — будет ошибка
 
-// --- Логика поиска и фильтрации (Добавлена для Этапа 4) ---
+
 $searchTerm = $_GET['search'] ?? ''; // Получаем значение поиска, если оно есть
 $students = []; // Массив для хранения студентов
 
@@ -10,13 +10,13 @@ if ($searchTerm) {
     // Запрос с фильтрацией по имени (LIKE :search)
     $stmt = $pdo->prepare("SELECT * FROM students WHERE name LIKE :search");
     // Передаем значение с процентами для поиска подстроки
-    $stmt->execute(['search' => "%" . $searchTerm . "%"]);
+    $stmt->execute(['search' => "%" . $searchTerm . "%"]); //после выполнения запроса $stmt (statement) используется для получения данных
 } else {
-    // Обычный запрос без фильтрации
-    $stmt = $pdo->query("SELECT * FROM students");
+   
+    $stmt = $pdo->query("SELECT * FROM students"); //если поиска нет, то выполняется обычный запрос
 }
 
-$students = $stmt->fetchAll();
+$students = $stmt->fetchAll(); //fetchAll() достает все строки из результата SQL-запроса
 
 ?>
 
@@ -60,11 +60,12 @@ $students = $stmt->fetchAll();
 
     <h1>Список студентов</h1>
 
-    <form method="GET" action="index.php">
-        <input type="text" name="search" placeholder="Поиск по имени"
-            value="<?php echo htmlspecialchars($searchTerm); ?>">
+    <form method="GET" action="index.php"> //определяет форму на странице, где данные из полей ввода отправляются с помощью метода GET на страницу index.php
+        <input type="text" name="search" placeholder="Поиск по имени" //placeholder - подсказка
+            value="<?php echo htmlspecialchars($searchTerm); ?>"> //строка выводит в поле ввода введённый ранее текст поиска, одновременно защищая HTML от вредных символов
+        //htmlspecialchars() преобразует специальные символы, такие как <, >, & и " , в их эквивалентные HTML-сущности, предотвращая тем самым уязвимости типа «межсайтовый скриптинг» (XSS). 
         <button type="submit">Найти</button>
-        <a href="index.php">Сбросить</a>
+        <a href="index.php">Сбросить</a>      //кнопка "Сбросить" просто перезагружает страницу без параметров
     </form>
 
     <p><a href="add_student.php"> Добавить нового студента</a></p>
@@ -90,7 +91,7 @@ $students = $stmt->fetchAll();
                         <td>
                             <a href="delete.php?id=<?php echo htmlspecialchars($student['id']); ?>"
                                 onclick="return confirm('Вы уверены, что хотите удалить студента <?php echo htmlspecialchars($student['name']); ?>?');"
-                                class="action-link">
+                                class="action-link"> //передаёт ID студента в delete.php, включено JavaScript-подтверждение, если нажать отмена, переход не произойдет
                                 Удалить
                             </a>
                         </td>
@@ -103,5 +104,6 @@ $students = $stmt->fetchAll();
     <?php endif; ?>
 
 </body>
+
 
 </html>
